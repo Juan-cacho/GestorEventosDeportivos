@@ -42,3 +42,5 @@ public class EquipoSrv extends HttpServlet {
         return JsonParser.parseString(sb.toString()).getAsJsonObject();
     }
 }
+
+/* comentario para probar git */
