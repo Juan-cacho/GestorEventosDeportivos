@@ -7,7 +7,12 @@
 <body>
 <h1><%= "Hello World!" %>
 </h1>
+
 <br/>
-<a href="hello-servlet">Hello Servlet</a>
+<a href="equipo">Equipos</a>
+<br/>
+<a href="jugador">Jugadores</a>
+<br/>
+<a href="evento">Eventos</a>
 </body>
 </html>
