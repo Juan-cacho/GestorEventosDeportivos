@@ -1,6 +1,7 @@
 package co.edu.poli.ces3.taller1_ces.dao;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Equipo {
 
@@ -10,9 +11,19 @@ public class Equipo {
     private String ciudad;
     private String fechaFun;
     private String logo;
-    private ArrayList<Integer> jugadores;
+    private ArrayList<Jugador> jugadores;
 
     public Equipo() {
+    }
+
+    public Equipo(Integer id, String nombre, String deporte, String ciudad, String fechaFun, String logo, ArrayList<Jugador> jugadores) {
+        this.id = id;
+        this.nombre = nombre;
+        this.deporte = deporte;
+        this.ciudad = ciudad;
+        this.fechaFun = fechaFun;
+        this.logo = logo;
+        this.jugadores = jugadores;
     }
 
     public Integer getId() {
@@ -63,12 +74,12 @@ public class Equipo {
         this.logo = logo;
     }
 
-    public ArrayList<Integer> getJugadores() {
+    public ArrayList<Jugador> getJugadores() {
         return jugadores;
     }
 
-    public void setJugadores(ArrayList<Integer> jugadores) {
-        this.jugadores = jugadores;
+    public void setJugadores(List<Jugador> jugadores) {
+        this.jugadores = new ArrayList<>(jugadores);
     }
 
 

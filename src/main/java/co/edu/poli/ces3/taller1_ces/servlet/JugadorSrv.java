@@ -14,6 +14,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @WebServlet(name = "jugadorSrv", value = "/jugador")
 public class JugadorSrv extends HttpServlet {
@@ -22,7 +24,7 @@ public class JugadorSrv extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-
+        getServletContext().setAttribute("jugadorSrv", this);
         Jugador j = new Jugador();
         this.jugadores = new ArrayList<>();
 
@@ -73,6 +75,7 @@ public class JugadorSrv extends HttpServlet {
                 1,
                 false
         ));
+
 
     }
 
@@ -217,6 +220,15 @@ public class JugadorSrv extends HttpServlet {
         reader.close();
         return JsonParser.parseString(sb.toString()).getAsJsonObject();
     }
+
+    public List<Jugador> obtenerJugadoresPorEquipo(int equipoId) {
+        return jugadores.stream()
+                .filter(j -> j.getEquipoId() == equipoId)
+                .collect(Collectors.toList());
+    }
+
 }
+
+
 
 /* comentario para probar git */
