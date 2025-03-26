@@ -209,17 +209,8 @@ public class JugadorSrv extends HttpServlet {
 
 
 
-    private JsonObject getParamsFromBody(HttpServletRequest request) throws IOException {
-        BufferedReader reader = request.getReader();
-        StringBuilder sb = new StringBuilder();
-        String line = reader.readLine();
-        while (line != null) {
-            sb.append(line + "\n");
-            line = reader.readLine();
-        }
-        reader.close();
-        return JsonParser.parseString(sb.toString()).getAsJsonObject();
-    }
+
+
 
     public List<Jugador> obtenerJugadoresPorEquipo(int equipoId) {
         return jugadores.stream()

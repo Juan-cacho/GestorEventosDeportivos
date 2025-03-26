@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>JSP - Hello World</title>
+    <title>JSP - Eventos deportivos</title>
 </head>
 <body>
-<h1><%= "Hello World!" %>
+<h1><%= "Gestor de eventos deportivos" %>
 </h1>
 
 <br/>

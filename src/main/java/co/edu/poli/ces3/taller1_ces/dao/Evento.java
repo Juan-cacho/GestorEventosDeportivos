@@ -1,6 +1,7 @@
 package co.edu.poli.ces3.taller1_ces.dao;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Evento {
 
@@ -11,10 +12,22 @@ public class Evento {
     private String deporte;
     private Integer capacidad;
     private Integer entradasVendidas;
-    private ArrayList<Integer> equipos;
+    private List<Integer> equipos;;
     private String estado;
 
     public Evento() {
+    }
+
+    public Evento(Integer id, String nombre, String fecha, String lugar, String deporte, Integer capacidad, Integer entradasVendidas, List<Integer> equipos, String estado) {
+        this.id = id;
+        this.nombre = nombre;
+        this.fecha = fecha;
+        this.lugar = lugar;
+        this.deporte = deporte;
+        this.capacidad = capacidad;
+        this.entradasVendidas = entradasVendidas;
+        this.equipos = equipos;
+        this.estado = estado;
     }
 
     public Integer getId() {
@@ -73,11 +86,11 @@ public class Evento {
         this.entradasVendidas = entradasVendidas;
     }
 
-    public ArrayList<Integer> getEquipos() {
+    public List<Integer> getEquipos() {
         return equipos;
     }
 
-    public void setEquipos(ArrayList<Integer> equipos) {
+    public void setEquipos(List<Integer> equipos) {
         this.equipos = equipos;
     }
 

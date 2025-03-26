@@ -46,6 +46,14 @@ public class EquipoSrv extends HttpServlet {
                 "1947-01-01",
                 "https://logo2.png",
                 new ArrayList<>()));
+
+        equipos.add(new Equipo(3,
+                "Alemania",
+                "tenis de mesa",
+                "Frankfurt",
+                "1965-01-01",
+                "https://logo3.png",
+                new ArrayList<>()));
     }
 
 
@@ -74,18 +82,18 @@ public class EquipoSrv extends HttpServlet {
                 }
 
                 if (equipoEncontrado != null) {
-                    // 🔹 Obtener los jugadores del equipo desde el JugadorServlet
+
                     List<Jugador> jugadoresEquipo = jugadorSrv.obtenerJugadoresPorEquipo(idEquipo);
                     equipoEncontrado.setJugadores(jugadoresEquipo);
 
-                    // 🔹 Enviar respuesta con el equipo y su lista de jugadores
                     out.print(gson.toJson(equipoEncontrado));
+
                 } else {
-                    resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
+
                     out.print("{\"error\":\"Equipo no encontrado\"}");
                 }
             } catch (NumberFormatException e) {
-                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
                 out.print("{\"error\":\"ID inválido\"}");
             }
         }
@@ -98,22 +106,118 @@ public class EquipoSrv extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JsonObject studentJson = this.getParamsFromBody(req);
-    }
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
 
+        BufferedReader reader = req.getReader();
+        Gson gson = new Gson();
+        Equipo NuevoEquipo = gson.fromJson(reader, Equipo.class);
 
+        // busca si existe el Equipo
+        boolean existe = equipos.stream().anyMatch(e -> e.getId() == NuevoEquipo.getId());
 
-    private JsonObject getParamsFromBody(HttpServletRequest request) throws IOException {
-        BufferedReader reader = request.getReader();
-        StringBuilder sb = new StringBuilder();
-        String line = reader.readLine();
-        while (line != null) {
-            sb.append(line + "\n");
-            line = reader.readLine();
+        PrintWriter out = resp.getWriter();
+
+        if (existe) {
+            out.print("{\"error\":\"El equipo con ID " + NuevoEquipo.getId() + " ya existe\"}");
+        } else {
+            equipos.add(NuevoEquipo);
+            out.print(gson.toJson(NuevoEquipo));
         }
-        reader.close();
-        return JsonParser.parseString(sb.toString()).getAsJsonObject();
+
+        out.flush();
+        out.close();
+
     }
+
+
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        PrintWriter out = resp.getWriter();
+        Gson gson = new Gson();
+
+        // Obtener el ID del Equipo desde de la URL
+        String idParam = req.getParameter("id");
+
+        if (idParam == null) {
+
+            out.print("{\"error\":\"Debe proporcionar un ID\"}");
+            out.flush();
+            out.close();
+            return;
+        }
+
+        int idEqui;
+
+        try {
+            idEqui = Integer.parseInt(idParam);
+        } catch (NumberFormatException e) {
+
+            out.print("{\"error\":\"ID inválido\"}");
+            out.flush();
+            out.close();
+            return;
+        }
+
+        // Buscar al jugador en la lista
+        Equipo EquipoExistente = null;
+        for (Equipo e : equipos) {
+            if (e.getId() == idEqui) {
+                EquipoExistente = e;
+                break;
+            }
+        }
+
+        if (EquipoExistente == null) {
+            out.print("{\"error\":\"Jugador no encontrado\"}");
+            out.flush();
+            out.close();
+            return;
+        }
+
+        //Lee la peticion
+        BufferedReader reader = req.getReader();
+        Equipo EquipoActualizado = gson.fromJson(reader, Equipo.class);
+
+
+        EquipoExistente.setNombre(EquipoActualizado.getNombre());
+        EquipoExistente.setDeporte(EquipoActualizado.getDeporte());
+        EquipoExistente.setCiudad(EquipoActualizado.getCiudad());
+        EquipoExistente.setFechaFun(EquipoActualizado.getFechaFun());
+        EquipoExistente.setLogo(EquipoActualizado.getLogo());
+        EquipoExistente.setJugadores(EquipoActualizado.getJugadores());
+
+
+        out.print(gson.toJson(EquipoExistente));
+
+        out.flush();
+        out.close();
+    }
+
+
+
+
+
+
+
+
+    public List<Equipo> obtenerEquiposPorDeporte(String deporte) {
+        return equipos.stream()
+                .filter(e -> e.getDeporte().equalsIgnoreCase(deporte))
+                .collect(Collectors.toList());
+    }
+
+    public List<Equipo> obtenerEquiposPorIds(List<Integer> ids) {
+        return equipos.stream()
+                .filter(e -> ids.contains(e.getId()))
+                .collect(Collectors.toList());
+    }
+
+
 }
 
 /* comentario para probar git */
