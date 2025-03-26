@@ -22,7 +22,7 @@ public class JugadorSrv extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        System.out.println("Init!!!!!");
+
         Jugador j = new Jugador();
         this.jugadores = new ArrayList<>();
 
@@ -79,7 +79,7 @@ public class JugadorSrv extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
-
+        resp.setCharacterEncoding("UTF-8");
 
         PrintWriter out = resp.getWriter();
 
@@ -88,10 +88,10 @@ public class JugadorSrv extends HttpServlet {
         if(req.getParameter("id") == null) {
             out.print(gson.toJson(jugadores));
         }else{
-            int idStudent = Integer.parseInt(req.getParameter("id"));
+            int idjugador = Integer.parseInt(req.getParameter("id"));
             Jugador buscarJugador = null;
             for (Jugador x : jugadores) {
-                if (x.getId() != null && x.getId().equals(idStudent)) {
+                if (x.getId() != null && x.getId().equals(idjugador)) {
                     buscarJugador = x;
                     break;
                 }
@@ -100,7 +100,7 @@ public class JugadorSrv extends HttpServlet {
             if (buscarJugador != null) {
                 out.print(gson.toJson(buscarJugador));
             } else {
-                out.print("{\"error\":\"Estudiante no encontrado\"}");
+                out.print("{\"error\":\"No hay jugador\"}");
             }
         }
         out.flush();
@@ -109,7 +109,99 @@ public class JugadorSrv extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        JsonObject studentJson = this.getParamsFromBody(req);
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        BufferedReader reader = req.getReader();
+        Gson gson = new Gson();
+        Jugador nuevoJugador = gson.fromJson(reader, Jugador.class);
+
+        // busca si existe el jugador dentro de los jugadores
+        boolean existe = jugadores.stream().anyMatch(j -> j.getId() == nuevoJugador.getId());
+
+        PrintWriter out = resp.getWriter();
+
+        if (existe) {
+            out.print("{\"error\":\"El jugador con ID " + nuevoJugador.getId() + " ya existe\"}");
+        } else {
+            jugadores.add(nuevoJugador);
+            out.print(gson.toJson(nuevoJugador));
+        }
+
+        out.flush();
+        out.close();
+
+    }
+
+
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+
+        PrintWriter out = resp.getWriter();
+        Gson gson = new Gson();
+
+        // Obtener el ID del jugador desde de la URL
+        String idParam = req.getParameter("id");
+
+        if (idParam == null) {
+
+            out.print("{\"error\":\"Debe proporcionar un ID\"}");
+            out.flush();
+            out.close();
+            return;
+        }
+
+        int idJugador;
+
+        try {
+            idJugador = Integer.parseInt(idParam);
+        } catch (NumberFormatException e) {
+
+            out.print("{\"error\":\"ID inválido\"}");
+            out.flush();
+            out.close();
+            return;
+        }
+
+        // Buscar al jugador en la lista
+        Jugador jugadorExistente = null;
+        for (Jugador j : jugadores) {
+            if (j.getId() == idJugador) {
+                jugadorExistente = j;
+                break;
+            }
+        }
+
+        if (jugadorExistente == null) {
+            out.print("{\"error\":\"Jugador no encontrado\"}");
+            out.flush();
+            out.close();
+            return;
+        }
+
+        //Lee la peticion
+        BufferedReader reader = req.getReader();
+        Jugador jugadorActualizado = gson.fromJson(reader, Jugador.class);
+
+
+        jugadorExistente.setNombre(jugadorActualizado.getNombre());
+        jugadorExistente.setApellido(jugadorActualizado.getApellido());
+        jugadorExistente.setFechaNacimiento(jugadorActualizado.getFechaNacimiento());
+        jugadorExistente.setNacionalidad(jugadorActualizado.getNacionalidad());
+        jugadorExistente.setPosicion(jugadorActualizado.getPosicion());
+        jugadorExistente.setPeto(jugadorActualizado.getPeto());
+        jugadorExistente.setEquipoId(jugadorActualizado.getEquipoId());
+        jugadorExistente.setEstado(jugadorActualizado.isEstado());
+
+
+
+        out.print(gson.toJson(jugadorExistente));
+
+        out.flush();
+        out.close();
     }
 
 
