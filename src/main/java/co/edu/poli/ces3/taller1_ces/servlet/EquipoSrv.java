@@ -54,6 +54,8 @@ public class EquipoSrv extends HttpServlet {
                 "1965-01-01",
                 "https://logo3.png",
                 new ArrayList<>()));
+
+        getServletContext().setAttribute("equipoSrv", this);
     }
 
 

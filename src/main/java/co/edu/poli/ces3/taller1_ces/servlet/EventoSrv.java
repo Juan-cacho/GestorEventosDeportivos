@@ -3,8 +3,6 @@ package co.edu.poli.ces3.taller1_ces.servlet;
 import co.edu.poli.ces3.taller1_ces.dao.Equipo;
 import co.edu.poli.ces3.taller1_ces.dao.Evento;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -15,7 +13,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @WebServlet(name = "eventoSrv", value = "/evento")
 public class EventoSrv extends HttpServlet {
@@ -28,6 +25,7 @@ public class EventoSrv extends HttpServlet {
     public void init() throws ServletException {
         eventos = new ArrayList<>();
         equipoSrv = (EquipoSrv) getServletContext().getAttribute("equipoSrv");
+        getServletContext().setAttribute("eventoSrv", this);
     }
 
 
@@ -67,6 +65,8 @@ public class EventoSrv extends HttpServlet {
             }
         }
 
+        req.setAttribute("listaEventos", eventos);
+
         out.flush();
         out.close();
 
@@ -79,6 +79,7 @@ public class EventoSrv extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
+        req.setCharacterEncoding("UTF-8");
         PrintWriter out = resp.getWriter();
         Gson gson = new Gson();
 
@@ -98,7 +99,7 @@ public class EventoSrv extends HttpServlet {
             return;
         }
 
-        // 🔹 Agregar IDs de los equipos participantes
+        // Agrega los Id de los equipos que hacen parte del evento
         List<Integer> idsEquipos = new ArrayList<>();
         for (Equipo equipo : equiposDelEvento) {
             idsEquipos.add(equipo.getId());
@@ -113,6 +114,70 @@ public class EventoSrv extends HttpServlet {
 
     }
 
+
+
+
+
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json");
+        PrintWriter out = resp.getWriter();
+        Gson gson = new Gson();
+
+
+        String eventoIdParam = req.getParameter("eventoId");
+        String cantidadParam = req.getParameter("cantidad");
+
+
+        if (eventoIdParam == null || cantidadParam == null) {
+            out.print("{\"error\": \"Se requieren los parámetros eventoId y cantidad\"}");
+            out.flush();
+            return;
+        }
+
+        try {
+            int eventoId = Integer.parseInt(eventoIdParam);
+            int cantidad = Integer.parseInt(cantidadParam);
+
+
+            Evento eventoEncontrado = null;
+            for (Evento evento : eventos) {
+                if (evento.getId().equals(eventoId)) {
+                    eventoEncontrado = evento;
+                    break;
+                }
+            }
+
+
+            if (eventoEncontrado == null) {
+                out.print("{\"error\": \"Evento no encontrado\"}");
+                out.flush();
+                return;
+            }
+
+
+            int disponibles = eventoEncontrado.getCapacidad() - eventoEncontrado.getEntradasVendidas();
+            if (cantidad > disponibles) {
+                out.print("{\"error\": \"No hay suficientes entradas disponibles. Disponibles: " + disponibles + "\"}");
+                out.flush();
+                return;
+            }
+
+            // Actualizar el número de entradas vendidas
+            eventoEncontrado.setEntradasVendidas(eventoEncontrado.getEntradasVendidas() + cantidad);
+
+            // Responder con el evento actualizado
+            resp.setStatus(HttpServletResponse.SC_OK);
+            out.print(gson.toJson(eventoEncontrado));
+
+        } catch (NumberFormatException e) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            out.print("{\"error\": \"Los parámetros eventoId y cantidad deben ser números válidos\"}");
+        }
+
+        out.flush();
+    }
 
 
 
